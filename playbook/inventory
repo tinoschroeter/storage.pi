@@ -1,0 +1,7 @@
+---
+all:
+  hosts:
+    storage:
+      ansible_host: storage.home.lan
+  vars:
+    ansible_user: ubuntu

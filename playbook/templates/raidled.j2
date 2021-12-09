@@ -1,0 +1,2 @@
+PATH="/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin"
+*/1 * * * * root echo 14 > /sys/class/gpio/export 2> /dev/null; echo out > /sys/class/gpio/gpio14/direction;zpool list | grep -q ONLINE; echo $? > /sys/class/gpio/gpio14/value;sleep 2; echo 0 > /sys/class/gpio/gpio14/value

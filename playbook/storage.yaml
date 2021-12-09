@@ -1,0 +1,87 @@
+- hosts: storage
+  gather_facts: no
+  become: yes
+  tasks:
+  - name: Set a hostname
+    ansible.builtin.hostname:
+      name: storage
+
+  - name: Set timezone to Europe/Berlin
+    community.general.timezone:
+      name: Europe/Berlin
+
+  - name: download Docker Installer
+    ansible.builtin.get_url:
+      url: https://get.docker.com
+      dest: /tmp/docker.sh
+
+  - name: Run Docker install script
+    ansible.builtin.shell:
+      cmd: ls /etc/docker || cat /tmp/docker.sh | sh -s -- -y
+
+  - name: Creates Docker Service directory
+    file:
+      path: /etc/systemd/system/docker.service.d
+      state: directory
+
+  - name: Reload Docker Service
+    ansible.builtin.service:
+      name: docker
+      state: reloaded
+
+  - name: Install utility packages
+    apt:
+      state: present
+      name: 
+        - net-tools 
+        - vim
+        - jq
+        - htop 
+        - dstat
+        - curl 
+        - unattended-upgrades 
+        - neofetch 
+        - dnsutils 
+        - git 
+        - sysstat 
+        - iotop 
+        - python3-pip 
+        - nfs-common
+        - libxrender1
+        - prometheus-node-exporter
+        - zfsutils-linux
+        - nfs-kernel-server
+        - restic
+        - python3-pip
+        - zfs-dkms
+        - zfs-auto-snapshot
+
+  - name: Buzzer zfs check
+    ansible.builtin.template:
+      src: templates/raidled.j2
+      dest: /etc/cron.d/raidled
+      owner: root
+      group: root
+      mode: u=rwx,g=rx,o=r
+
+  - name: zfs-auto-snapshot
+    ansible.builtin.template:
+      src: templates/zfs-auto-snapshot.js
+      dest: /etc/cron.d/zfs-auto-snapshot
+      owner: root
+      group: root
+      mode: u=rwx,g=rx,o=r
+
+  - name: Install docker python package
+    pip:
+      name: docker
+
+  - name: Create Restic Rest Server
+    community.docker.docker_container:
+      name: restic
+      image: tinoplaumann/rest-server:1.0.0
+      state: started
+      volumes:
+        - /backup:/data
+      ports:
+      - "8000:8000"
