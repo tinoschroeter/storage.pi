@@ -72,6 +72,31 @@
       group: root
       mode: u=rwx,g=rx,o=r
 
+  - name: Download ZFS Exporter
+    get_url:
+      url: https://github.com/pdf/zfs_exporter/releases/download/v2.2.2/zfs_exporter-2.2.2.linux-arm64.tar.gz
+      dest: /tmp/zfs_exporter-2.2.2.linux-arm64.tar.gz
+
+  - name: Extract zfs_exporter
+    shell: |
+      tar -xzf /tmp/zfs_exporter-2.2.2.linux-arm64.tar.gz
+      ls /usr/local/bin/zfs_exporter || cp zfs_exporter-2.2.2.linux-arm64/zfs_exporter /usr/local/bin/
+    become: yes
+
+  - name: install zfs_exporter.service 
+    ansible.builtin.template:
+      src: templates/zfs_exporter.service.j2
+      dest: /etc/systemd/system/zfs_exporter.service
+      owner: root
+      group: root
+      mode: u=rwx,g=rx,o=r
+
+  - name: Enable zfs_exporter
+    ansible.builtin.systemd:
+      name: zfs_exporter.service
+      state: started
+      enabled: yes
+
   - name: Install docker python package
     pip:
       name: docker

@@ -1,0 +1,10 @@
+[Unit]
+Description=zfs_exporter 
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/zfs_exporter
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
