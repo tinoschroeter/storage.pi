@@ -25,6 +25,7 @@ zfs set mountpoint=/mnt/data data
 zpool list
 zpool status
 
+zpool destroy data
 zfs snapshot [pool]/[dataset name]@[snapshot name]
 zfs list -t snapshot
 zfs rollback -r [pool]/[dataset]@[snapshot name]
